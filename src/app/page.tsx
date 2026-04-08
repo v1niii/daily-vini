@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Trophy, Crosshair, Activity, TrendingUp, Search } from "lucide-react";
+import { ArrowRight, Trophy, Crosshair, Activity, TrendingUp, Search, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,6 +52,7 @@ export default function Home() {
   const navItems: { label: string; href: string; sub: string; icon: ComponentType<{ className?: string }> }[] = [
     { label: "leaderboard", href: "/", sub: "top 50 players", icon: Trophy },
     { label: "agents", href: "/agents", sub: "pick priority", icon: Crosshair },
+    { label: "strats", href: "/strats", sub: "map planner", icon: Map },
     { label: "status", href: "/status", sub: "server health", icon: Activity },
   ];
 
@@ -76,7 +77,7 @@ export default function Home() {
       </FadeUp>
 
       <FadeUp delay={0.1} className="mb-12 sm:mb-14">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {navItems.map((item) => (
             <Link key={item.label} href={item.href} className="group no-underline">
               <Card className="text-center transition-colors duration-200 hover:bg-muted/50">

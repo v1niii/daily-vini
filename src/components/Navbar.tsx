@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, Crosshair, Activity } from "lucide-react";
+import { Trophy, Crosshair, Activity, Map } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { type ComponentType } from "react";
 
 const links: { href: string; label: string; icon: ComponentType<{ className?: string }> }[] = [
   { href: "/", label: "home", icon: Trophy },
   { href: "/agents", label: "agents", icon: Crosshair },
+  { href: "/strats", label: "strats", icon: Map },
   { href: "/status", label: "status", icon: Activity },
 ];
 
