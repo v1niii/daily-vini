@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Player Lookup{% endblock %}
+
+{% block content %}
+<section class="section">
+    <h1 class="page-title">Player <span class="accent">Lookup</span></h1>
+    <p class="page-sub">Search any Valorant player by Riot ID to view their account information.</p>
+
+    <form class="search-bar" id="playerSearch" autocomplete="off">
+        <div class="search-group">
+            <input type="text" id="pName" placeholder="Player name" maxlength="30" required>
+            <span class="search-sep">#</span>
+            <input type="text" id="pTag" placeholder="Tag" maxlength="10" required>
+        </div>
+        <select id="pRegion" class="select-region">
+            <option value="eu">EU</option>
+            <option value="na">NA</option>
+            <option value="ap">AP</option>
+            <option value="kr">KR</option>
+            <option value="br">BR</option>
+            <option value="latam">LATAM</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Look Up</button>
+    </form>
+</section>
+
+<!-- Account card -->
+<section id="accountSection" class="section hidden">
+    <div class="player-card">
+        <div class="player-avatar-placeholder">👤</div>
+        <div class="player-info">
+            <h2 id="pDisplayName" class="player-name"></h2>
+            <span id="pRegionBadge" class="badge badge-region"></span>
+        </div>
+    </div>
+    <div class="info-grid" id="accountDetails"></div>
+</section>
+
+<div id="playerError" class="error-box hidden"></div>
+<div id="playerLoading" class="loader hidden">Searching...</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/player.js') }}"></script>
+{% endblock %}
