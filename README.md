@@ -1,6 +1,6 @@
 # Daily Vini
 
-A web-based Valorant companion app. Look up players, view regional leaderboards, check server status, and save your agent pick preferences.
+A web-based Valorant companion app. View regional leaderboards, check server status, and save your agent pick preferences.
 
 ## Setup
 
@@ -12,38 +12,43 @@ A web-based Valorant companion app. Look up players, view regional leaderboards,
 
 2. Install dependencies:
    ```
-   pip install -r requirements.txt
+   npm install
    ```
 
-3. Create a `.env` file from the example:
-   ```
-   cp .env.example .env
-   ```
-
-4. Add your Riot API key to `.env`:
+3. Create a `.env.local` file:
    ```
    RIOT_API_KEY=RGAPI-your-key-here
-   SECRET_KEY=any-random-string
    ```
    Get an API key at https://developer.riotgames.com
 
-5. Run the app:
+4. Run the dev server:
    ```
-   python app.py
+   npm run dev
    ```
 
-6. Open http://localhost:5000
+5. Open http://localhost:3000
+
+## Deploy to Vercel
+
+1. Push this repo to GitHub
+2. Go to https://vercel.com and import the repo
+3. Add `RIOT_API_KEY` as an environment variable
+4. Deploy
 
 ## Features
 
-- **Player Lookup** — Search any player by Riot ID (Name#Tag)
 - **Regional Leaderboard** — Top 50 ranked players per region
 - **Server Status** — Live Valorant platform status and incidents
 - **Agent Picks** — Save your preferred agents in priority order
 
+## Tech Stack
+
+- **Frontend:** Next.js (React/TypeScript)
+- **Backend:** Python serverless functions (Vercel)
+- **Deployment:** Vercel
+
 ## Riot APIs Used
 
-- `account-v1` — Player account lookup
 - `val-ranked-v1` — Competitive leaderboards
 - `val-content-v1` — Game content (acts, maps, agents)
 - `val-status-v1` — Platform status
