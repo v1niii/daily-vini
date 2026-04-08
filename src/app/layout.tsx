@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
+import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Daily Vini – Valorant Tracker",
@@ -14,20 +18,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <Navbar />
-        <main className="container">{children}</main>
-        <footer className="footer">
-          <p>
-            Daily Vini is not affiliated with Riot Games. Valorant is a
-            trademark of Riot Games, Inc.
-          </p>
-          <p>
-            Uses official Riot Games API: val-ranked-v1, val-content-v1,
-            val-status-v1.
-          </p>
-        </footer>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ToastProvider>
+          <Navbar />
+          <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:px-5 sm:py-10">
+            {children}
+          </main>
+          <footer className="mt-auto px-4 py-6 text-center text-[11px] text-muted-foreground sm:py-8">
+            daily vini is not affiliated with riot games.
+          </footer>
+        </ToastProvider>
       </body>
     </html>
   );

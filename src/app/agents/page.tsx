@@ -1,6 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { X, Trash2, GripVertical, Crosshair, ListOrdered, MousePointerClick } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FadeUp, Stagger, StaggerItem } from "@/components/Motion";
+import { useToast } from "@/components/Toast";
+import { Reorder, AnimatePresence } from "framer-motion";
 
 const AGENTS = [
   { name: "Brimstone", role: "Controller", img: "https://media.valorant-api.com/agents/9f0d8ba9-4140-b941-57d3-a7ad57c6b417/displayicon.png" },
@@ -30,9 +35,15 @@ const AGENTS = [
   { name: "Vyse", role: "Sentinel", img: "https://media.valorant-api.com/agents/efba5359-4016-a1e5-7626-b1ae76895940/displayicon.png" },
 ];
 
+const ROLES = ["Controller", "Duelist", "Initiator", "Sentinel"];
+
+function save(list: string[]) {
+  localStorage.setItem("dv-locked-agents", JSON.stringify(list));
+}
+
 export default function AgentsPage() {
   const [locked, setLocked] = useState<string[]>([]);
-  const [status, setStatus] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     const saved = localStorage.getItem("dv-locked-agents");
@@ -42,84 +53,161 @@ export default function AgentsPage() {
   }, []);
 
   function toggle(name: string) {
-    setLocked((prev) => {
-      if (prev.includes(name)) {
-        const next = prev.filter((n) => n !== name);
-        localStorage.setItem("dv-locked-agents", JSON.stringify(next));
-        setStatus("");
-        return next;
-      }
-      if (prev.length >= 5) {
-        setStatus("Max 5 agents. Remove one first.");
-        return prev;
-      }
-      const next = [...prev, name];
-      localStorage.setItem("dv-locked-agents", JSON.stringify(next));
-      setStatus("");
-      return next;
-    });
+    if (locked.includes(name)) {
+      const next = locked.filter((n) => n !== name);
+      setLocked(next);
+      save(next);
+      return;
+    }
+    if (locked.length >= 5) {
+      toast("max 5 agents. remove one first.", "error");
+      return;
+    }
+    const next = [...locked, name];
+    setLocked(next);
+    save(next);
+  }
+
+  function remove(name: string) {
+    const next = locked.filter((n) => n !== name);
+    setLocked(next);
+    save(next);
   }
 
   function clearAll() {
     setLocked([]);
     localStorage.removeItem("dv-locked-agents");
-    setStatus("Cleared.");
+    toast("picks cleared", "info");
+  }
+
+  function handleReorder(newOrder: string[]) {
+    setLocked(newOrder);
+    save(newOrder);
   }
 
   return (
     <>
-      <section className="section">
-        <h1 className="page-title">
-          Agent <span className="accent">Picks</span>
-        </h1>
-        <p className="page-sub">
-          Set your preferred agents in priority order (up to 5). Picks are saved
-          in your browser.
+      <FadeUp>
+        <p className="mb-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Crosshair className="h-3.5 w-3.5" />
+          agent select
         </p>
-      </section>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          pick priority
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+          choose up to 5 agents. drag to reorder. saved locally.
+        </p>
+      </FadeUp>
 
-      <section className="section">
-        <div className="agent-grid">
-          {AGENTS.map((a) => (
-            <div
-              key={a.name}
-              className={`agent-tile ${locked.includes(a.name) ? "selected" : ""}`}
-              onClick={() => toggle(a.name)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={a.img} alt={a.name} />
-              <span>{a.name}</span>
-            </div>
-          ))}
+      <FadeUp delay={0.08} className="mt-8 space-y-6 sm:mt-10 sm:space-y-8">
+        {ROLES.map((role) => (
+          <div key={role}>
+            <p className="mb-2 text-[13px] font-medium lowercase text-muted-foreground sm:mb-2.5">
+              {role}
+            </p>
+            <Stagger className="grid grid-cols-3 gap-1.5 sm:grid-cols-5 md:grid-cols-7 sm:gap-2">
+              {AGENTS.filter((a) => a.role === role).map((a) => {
+                const selected = locked.includes(a.name);
+                const idx = locked.indexOf(a.name);
+                return (
+                  <StaggerItem key={a.name}>
+                    <button
+                      onClick={() => toggle(a.name)}
+                      className={`relative flex w-full cursor-pointer flex-col items-center gap-1 rounded-xl p-2 transition-all duration-200 sm:gap-1.5 sm:p-2.5 ${
+                        selected
+                          ? "bg-accent/10 ring-1 ring-accent"
+                          : "bg-card hover:bg-muted"
+                      }`}
+                    >
+                      {selected && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white">
+                          {idx + 1}
+                        </span>
+                      )}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={a.img}
+                        alt={a.name}
+                        className="h-8 w-8 rounded-full sm:h-9 sm:w-9"
+                      />
+                      <span className="text-[9px] font-medium text-muted-foreground sm:text-[10px]">
+                        {a.name}
+                      </span>
+                    </button>
+                  </StaggerItem>
+                );
+              })}
+            </Stagger>
+          </div>
+        ))}
+      </FadeUp>
+
+      <FadeUp delay={0.16} className="mt-8 pb-8 sm:mt-10">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
+            <ListOrdered className="h-3.5 w-3.5" />
+            your priority
+          </p>
+          {locked.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={clearAll} className="gap-1 text-xs">
+              <Trash2 className="h-3 w-3" />
+              clear
+            </Button>
+          )}
         </div>
-      </section>
-
-      <section className="section">
-        <h2 className="section-title">Your Pick Priority</h2>
 
         {locked.length === 0 ? (
-          <p className="muted">Click agents above to add them to your list.</p>
-        ) : (
-          <div className="lock-list">
-            {locked.map((name, i) => (
-              <div key={name} className="lock-item">
-                <span className="lock-num">{i + 1}</span>
-                <span>{name}</span>
-                <span className="lock-remove" onClick={() => toggle(name)}>
-                  &times;
-                </span>
-              </div>
-            ))}
+          <div className="flex flex-col items-center gap-2 rounded-2xl bg-muted/50 py-10 text-center">
+            <MousePointerClick className="h-5 w-5 text-muted-foreground/50" />
+            <p className="text-sm text-muted-foreground">
+              tap agents above to build your list.
+            </p>
           </div>
+        ) : (
+          <Reorder.Group
+            axis="y"
+            values={locked}
+            onReorder={handleReorder}
+            className="space-y-2"
+          >
+            <AnimatePresence initial={false}>
+              {locked.map((name, i) => {
+                const agent = AGENTS.find((a) => a.name === name);
+                return (
+                  <Reorder.Item
+                    key={name}
+                    value={name}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.2 }}
+                    whileDrag={{
+                      scale: 1.02,
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+                    }}
+                    className="flex cursor-grab items-center gap-2.5 rounded-xl bg-card px-3 py-2.5 ring-1 ring-border active:cursor-grabbing sm:gap-3 sm:px-4 sm:py-3"
+                  >
+                    <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+                    <span className="w-5 text-sm font-semibold text-accent">{i + 1}</span>
+                    {agent && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={agent.img} alt={name} className="h-6 w-6 rounded-full sm:h-7 sm:w-7" />
+                    )}
+                    <span className="flex-1 text-xs font-medium sm:text-sm">{name}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); remove(name); }}
+                      className="cursor-pointer rounded-md p-1 text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </Reorder.Item>
+                );
+              })}
+            </AnimatePresence>
+          </Reorder.Group>
         )}
-
-        <div className="controls-row" style={{ marginTop: "1rem" }}>
-          <button className="btn btn-secondary" onClick={clearAll}>
-            Clear All
-          </button>
-        </div>
-        {status && <p className="muted" style={{ marginTop: "0.5rem" }}>{status}</p>}
-      </section>
+      </FadeUp>
     </>
   );
 }
